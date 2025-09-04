@@ -13,15 +13,41 @@ import {
 } from "@/lib/actions/companion.actions";
 import Image from "next/image";
 import CompanionsList from "@/components/CompanionsList";
+import { toast } from "sonner";
 
 const Profile = async () => {
   const user = await currentUser();
 
   if (!user) redirect("/sign-in");
 
-  const companions = await getUserCompanions(user.id);
-  const sessionHistory = await getUserSessions(user.id);
-  const bookmarkedCompanions = await getBookmarkedCompanions(user.id);
+  const result = await getUserCompanions();
+  let companions: Companion[] = [];
+  if (!result.success) {
+    // console.log("Failed to load companions");
+    companions = [];
+    toast.error(result.message || "Failed to load companions");
+  } else {
+    companions = result.data || [];
+    // console.log("companions", companions);
+  }
+  const result2 = await getUserSessions();
+  let sessionHistory: Companion[] = [];
+  // console.log("result2 =============", result2);
+  if (!result2.success) {
+    // console.log("Failed to load session history");
+    toast.error(result2.message || "Failed to load session history");
+  } else {
+    sessionHistory = result2.data || [];
+  }
+  const result3 = await getBookmarkedCompanions();
+  let bookmarkedCompanions: Companion[] = [];
+  if (!result3.success) {
+    // console.log("Failed to load bookmarked companions");
+    toast.error(result3.message || "Failed to load bookmarked companions");
+  }
+  else {
+    bookmarkedCompanions = result3.data || [];
+  }
 
   return (
     <main className="min-lg:w-3/4">
@@ -81,6 +107,7 @@ const Profile = async () => {
             Recent Sessions
           </AccordionTrigger>
           <AccordionContent>
+        
             <CompanionsList
               title="Recent Sessions"
               companions={sessionHistory}

@@ -4,6 +4,7 @@ import {redirect} from "next/navigation";
 import {getSubjectColor} from "@/lib/utils";
 import Image from "next/image";
 import CompanionComponent from "@/components/CompanionComponent";
+import { toast } from "sonner";
 
 interface CompanionSessionPageProps {
     params: Promise<{ id: string}>;
@@ -11,7 +12,13 @@ interface CompanionSessionPageProps {
 
 const CompanionSession = async ({ params }: CompanionSessionPageProps) => {
     const { id } = await params;
-    const companion = await getCompanion(id);
+    const result = await getCompanion(id);
+    let companion: Companion | null = null;
+    if(!result.success) {
+        toast.error(result.message || 'Failed to load companion');
+    } else {
+        companion = result.data || null;
+    }
     const user = await currentUser();
 
     const { name, subject, title, topic, duration } = companion;

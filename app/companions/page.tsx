@@ -3,13 +3,21 @@ import CompanionCard from "@/components/CompanionCard";
 import {getSubjectColor} from "@/lib/utils";
 import SearchInput from "@/components/SearchInput";
 import SubjectFilter from "@/components/SubjectFilter";
+import { toast } from "sonner";
 
 const CompanionsLibrary = async ({ searchParams }: SearchParams) => {
     const filters = await searchParams;
     const subject = filters.subject ? filters.subject : '';
     const topic = filters.topic ? filters.topic : '';
+    
+    const result = await getAllCompanions({ subject, topic });
+    let companions: Companion[] = [];
+    if(!result.success) {
+        toast.error(result.message || 'Failed to load companions');
 
-    const companions = await getAllCompanions({ subject, topic });
+    } else {
+        companions = result.data || [];
+    }
 
     return (
         <main>
